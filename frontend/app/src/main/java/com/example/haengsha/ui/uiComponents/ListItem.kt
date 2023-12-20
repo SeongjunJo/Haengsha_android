@@ -386,6 +386,7 @@ fun CommentListItem(
                 color = PlaceholderGrey
             )
         }
+        Spacer(modifier = Modifier.height(3.dp))
         Text(
             text = commentContent,
             fontFamily = poppins,

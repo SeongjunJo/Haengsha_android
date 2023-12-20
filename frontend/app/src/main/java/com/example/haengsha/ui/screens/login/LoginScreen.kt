@@ -83,7 +83,7 @@ fun LoginScreen(
         ConfirmOnlyDialog(
             onDismissRequest = { isInfoModalVisible = false },
             onClick = { isInfoModalVisible = false },
-            text = "서버 통신 없는 하드코딩 버전입니다.\n아무 이메일, 비밀번호를 입력하면 로그인됩니다.\n회원가입도 실제로 가입되지 않습니다."
+            text = "서버 통신 없는 하드코딩 버전입니다.\n아무 이메일, 비밀번호를 입력하세요.\n회원가입도 실제로 가입되지 않습니다."
         )
     }
 

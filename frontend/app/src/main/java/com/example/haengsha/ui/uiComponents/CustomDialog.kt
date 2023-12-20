@@ -77,7 +77,8 @@ fun ConfirmOnlyDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .size(width = 320.dp, height = 160.dp)
+                    .width(320.dp)
+                    .wrapContentHeight()
                     .shadow(elevation = 5.dp, shape = RoundedCornerShape(15.dp))
                     .background(color = md_theme_light_onPrimary),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -101,6 +102,7 @@ fun ConfirmOnlyDialog(
                 ModalConfirmButton(
                     onClick = onClick
                 )
+                Spacer(modifier = Modifier.height(21.dp))
             }
         }
     }

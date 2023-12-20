@@ -429,9 +429,7 @@ fun SearchBar(
 }
 
 @Composable
-fun commentTextField(
-    keyboardActions: () -> Unit
-): String {
+fun commentTextField(): String {
     var input by rememberSaveable { mutableStateOf("") }
 
     OutlinedTextField(
@@ -452,9 +450,6 @@ fun commentTextField(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = { keyboardActions() }
         ),
         singleLine = true,
         shape = RoundedCornerShape(20.dp),

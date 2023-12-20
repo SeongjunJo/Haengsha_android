@@ -293,7 +293,7 @@ fun HomeScreenList(
                     Spacer(modifier = Modifier.height(10.dp))
                     CustomHorizontalDivider(color = Color.Black.copy(0.3f))
 
-                    if(isLoading) {
+                    if (isLoading) {
                         LaunchedEffect(Unit) {
                             delay(1000)
                             isLoading = false
@@ -338,7 +338,7 @@ fun HomeScreenList(
                                     HomeListItem(
                                         organizer = "행샤",
                                         eventTitle = "행샤X행샤 일일호프",
-                                        image = "haengsha",
+                                        image = "image.jpg",
                                         startDate = LocalDate.now(),
                                         endDate = LocalDate.now(),
                                         likes = 12,

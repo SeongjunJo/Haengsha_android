@@ -45,6 +45,7 @@ import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
 import com.kizitonwose.calendar.core.atStartOfMonth
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -98,6 +99,7 @@ fun HomeScreen(
             onDateSelected = { selectedDate ->
                 homeViewModel.updateSelectedDate(LocalDate.parse(selectedDate, fullFormatter))
                 showDatePicker = false
+                isLoading = true
             },
             onDismiss = { showDatePicker = false }
         )
@@ -156,11 +158,16 @@ fun HomeScreen(
             dayContent = { day ->
                 Day(day.date, isSelected = selection == day.date) { clicked ->
                     homeViewModel.updateSelectedDate(clicked)
+                    isLoading = true
                 }
             },
         )
 
-        if(isLoading) {
+        if (isLoading) {
+            LaunchedEffect(Unit) {
+                delay(1000)
+                isLoading = false
+            }
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -188,10 +195,10 @@ fun HomeScreen(
                 eventType = "Academic",
                 place = "서울대학교",
                 time = "오후 1시 ~ 오후 6시",
-                image = "haengsha"
+                image = "image.jpg"
             )
-            val academicCardData : MutableList<EventCardData> = mutableListOf()
-            for(i in 1..10) {
+            val academicCardData: MutableList<EventCardData> = mutableListOf()
+            for (i in 1..10) {
                 academicCardData.add(academicEventCardData)
             }
             val academicCardDataList = academicCardData.toList()
@@ -207,10 +214,10 @@ fun HomeScreen(
                 eventType = "Festival",
                 place = "서울대학교",
                 time = "오후 1시 ~ 오후 6시",
-                image = "haengsha"
+                image = "image.jpg"
             )
-            val festivalCardData : MutableList<EventCardData> = mutableListOf()
-            for(i in 1..10) {
+            val festivalCardData: MutableList<EventCardData> = mutableListOf()
+            for (i in 1..10) {
                 festivalCardData.add(festivalEventCardData)
             }
             val festivalCardDataList = festivalCardData.toList()
