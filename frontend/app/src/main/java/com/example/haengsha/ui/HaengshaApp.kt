@@ -362,7 +362,19 @@ fun HaengshaApp(mainNavController: NavHostController = rememberNavController()) 
                 onClick = {
                     if (!isLogoutClicked) {
                         isLogoutClicked = true
-                        loginApiViewModel.logout(userUiState.token)
+                        // TODO logout
+                        // loginApiViewModel.logout(userUiState.token)
+                        userViewModel.resetUserData()
+                        homeViewModel.initialEnter = true
+                        homeViewModel.selectionChanged = false
+                        homeViewModel.initialRecommendationState = true
+                        boardViewModel.resetBoardUiState()
+                        mainNavController.navigate(MainRoute.Login.route) {
+                            popUpTo(mainNavController.graph.id) { inclusive = true }
+                        }
+                        isLogoutModal = false
+                        Toasty.success(context, "로그아웃 되었습니다.", Toasty.LENGTH_SHORT).show()
+                        isLogoutClicked = false
                     }
                 },
                 text = "로그아웃 하시겠어요?"

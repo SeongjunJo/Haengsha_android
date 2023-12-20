@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.haengsha.R
+import com.example.haengsha.model.network.dataModel.Author
+import com.example.haengsha.model.network.dataModel.BoardListResponse
+import com.example.haengsha.model.network.dataModel.EventDurationResponse
 import com.example.haengsha.model.route.BoardRoute
 import com.example.haengsha.model.uiState.UserUiState
 import com.example.haengsha.model.uiState.board.BoardListUiState
@@ -63,6 +67,7 @@ import com.example.haengsha.ui.uiComponents.FilterDialog
 import com.example.haengsha.ui.uiComponents.SearchBar
 import com.example.haengsha.ui.uiComponents.boardListItem
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.delay
 
 @Composable
 fun BoardScreen(
@@ -92,6 +97,10 @@ fun BoardScreen(
     val deviceWidth = configuration.screenWidthDp.dp
     val deviceHeight = configuration.screenHeightDp.dp
 
+    // TODO 검색 하드코딩
+    var isUserSearched by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -112,7 +121,11 @@ fun BoardScreen(
                 keyword = boardUiState.value.keyword,
                 keyboardActions = { focusManager.clearFocus() },
                 context = boardContext
-            ) { boardApiViewModel.searchEvent(it) }
+            ) {
+                // TODO searchEvent
+                // boardApiViewModel.searchEvent(it)
+                isUserSearched = true
+            }
             Spacer(modifier = Modifier.height(20.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Spacer(modifier = Modifier.weight(1f))
@@ -162,6 +175,87 @@ fun BoardScreen(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
+                if(!isUserSearched) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "찾고 싶은 행사를 검색해보세요!",
+                            fontFamily = poppins,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            text = "(단체 계정은 행사를 등록할 수도 있습니다)",
+                            fontFamily = poppins,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center
+                        )
+                        if (isTest) {
+                            Column(modifier = Modifier.clickable {
+                                boardNavController.navigate(BoardRoute.BoardDetail.route)
+                            }) { Text("test") }
+                        }
+                    }
+                } else {
+                    if(isLoading) {
+                        LaunchedEffect(Unit) {
+                            delay(1000)
+                            isLoading = false
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CustomCircularProgressIndicator()
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Text(
+                                text = "행사 찾아보는 중...",
+                                fontFamily = poppins,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = HaengshaBlue
+                            )
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(20) {
+                                Row(modifier = Modifier.clickable {
+                                    boardNavController.navigate(BoardRoute.BoardDetail.route)
+                                }) {
+                                    boardListItem(
+                                        isFavorite = false,
+                                        event = BoardListResponse(
+                                            id = 1,
+                                            title = "행샤X행샤 일일호프",
+                                            isFestival = true,
+                                            author = Author("행샤"),
+                                            eventDurations = listOf(EventDurationResponse("2023.01.01"), EventDurationResponse("2023.12.31")),
+                                            place = "서울대학교",
+                                            time = "오후 1시 ~ 오후 5시",
+                                            content = "행샤입니다",
+                                            image = "haengsha",
+                                            likeCount = 12,
+                                            favoriteCount = 3
+                                        )
+                                    )
+                                }
+                                CustomHorizontalDivider(color = PlaceholderGrey)
+                            }
+                        }
+                    }
+                }
+
+                /* TODO 검색 하드코딩
                 when (boardListUiState) {
                     is BoardListUiState.HttpError -> {
                         Toasty.error(
@@ -280,10 +374,12 @@ fun BoardScreen(
                         }
                     }
                 }
+                */
             }
         }
 
-        if (userUiState.role == "Group" || isTest) {
+        // TODO 개인 유저도 글 쓰는 화면 보이게 하드코딩
+        // if (userUiState.role == "Group" || isTest) {
             Box(modifier = Modifier.offset(deviceWidth - 80.dp, deviceHeight - 190.dp)) {
                 Box(
                     modifier = Modifier
@@ -300,14 +396,18 @@ fun BoardScreen(
                     )
                 }
             }
-        }
+        // }
 
         if (filterModal) {
             FilterDialog(
                 boardViewModel = boardViewModel,
                 boardUiState = boardUiState.value,
                 context = boardContext,
-                onSubmit = { boardApiViewModel.searchEvent(it) },
+                onSubmit = {
+                    // TODO searchEvent
+                    // boardApiViewModel.searchEvent(it)
+                    isUserSearched = true
+                    },
                 onDismissRequest = { filterModal = false },
                 onStartDatePick = { startDatePick = true },
                 onEndDatePick = { endDatePick = true }

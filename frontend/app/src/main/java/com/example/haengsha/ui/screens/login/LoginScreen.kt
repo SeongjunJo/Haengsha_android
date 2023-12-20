@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.haengsha.model.route.LoginRoute
 import com.example.haengsha.model.route.MainRoute
@@ -51,6 +53,7 @@ import com.example.haengsha.ui.uiComponents.LoadingScreen
 import com.example.haengsha.ui.uiComponents.passwordTextField
 import com.example.haengsha.ui.uiComponents.suffixTextField
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(
@@ -72,6 +75,17 @@ fun LoginScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val configuration = LocalConfiguration.current
     val deviceHeight = configuration.screenHeightDp.dp
+
+    // TODO 로그인 하드코딩
+    var isLoading by remember { mutableStateOf(true) }
+    var isInfoModalVisible by remember { mutableStateOf(true) }
+    if (isInfoModalVisible) {
+        ConfirmOnlyDialog(
+            onDismissRequest = { isInfoModalVisible = false },
+            onClick = { isInfoModalVisible = false },
+            text = "서버 통신 없는 하드코딩 버전입니다.\n아무 이메일, 비밀번호를 입력하면 로그인됩니다.\n회원가입도 실제로 가입되지 않습니다."
+        )
+    }
 
     BackHandler(enabled = isLoginLoading) { isLoginLoading = false }
 
@@ -164,7 +178,8 @@ fun LoginScreen(
                     ).show()
                 } else {
                     isLoginLoading = true
-                    loginApiViewModel.login(emailInput, passwordInput)
+                    // TODO login
+                    // loginApiViewModel.login(emailInput, passwordInput)
                 }
             })
         if (isLoginFailedDialogVisible) {
@@ -197,6 +212,27 @@ fun LoginScreen(
         )
     }
 
+    if (isLoginLoading) {
+        LoadingScreen("행샤에 로그인하는 중...")
+        if (isLoading) {
+            LaunchedEffect(Unit) {
+                delay(1000)
+                isLoading = false
+            }
+        } else {
+            userViewModel.updateToken("token")
+            userViewModel.updateRole("User")
+            userViewModel.updateNickname("행샤")
+            boardViewModel.saveToken("token")
+            mainNavController.navigate(MainRoute.Home.route) {
+                popUpTo(LoginRoute.Login.route) { inclusive = true }
+                popUpTo(MainRoute.Login.route) { inclusive = true }
+            }
+            loginApiViewModel.resetLoginApiUiState()
+        }
+    }
+
+    /* TODO 로그인 하드코딩
     when (loginApiUiState) {
         is LoginApiUiState.LoginSuccess -> {
             if (isLoginLoading) {
@@ -242,6 +278,7 @@ fun LoginScreen(
             /* Other Success State, do nothing */
         }
     }
+    */
 }
 
 //@Preview(showBackground = true)

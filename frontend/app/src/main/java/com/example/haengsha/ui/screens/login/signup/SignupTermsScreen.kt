@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +57,7 @@ import com.example.haengsha.ui.uiComponents.LoadingScreen
 import com.example.haengsha.ui.uiComponents.PrivacyPolicyModalText
 import com.example.haengsha.ui.uiComponents.TermsOfUseModalText
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.delay
 
 @Composable
 fun SignupTermsScreen(
@@ -77,6 +79,9 @@ fun SignupTermsScreen(
     val configuration = LocalConfiguration.current
     val deviceWidth = configuration.screenWidthDp.dp
     val deviceHeight = configuration.screenHeightDp.dp
+
+    // TODO 회원가입 하드코딩
+    var isLoading by remember { mutableStateOf(true) }
 
     Box(
         modifier = Modifier
@@ -261,6 +266,8 @@ fun SignupTermsScreen(
                                 loginApiViewModel.resetLoginApiUiState()
                             } else if (!isSignup) {
                                 isSignup = true
+                                // TODO signupRegister
+                                /*
                                 loginApiViewModel.signupRegister(
                                     email = signupUiState.email,
                                     password = signupUiState.password,
@@ -270,6 +277,7 @@ fun SignupTermsScreen(
                                     grade = signupUiState.grade,
                                     interest = signupUiState.interest
                                 )
+                                */
                             }
                         }
                     )
@@ -329,6 +337,21 @@ fun SignupTermsScreen(
         }
     }
 
+    if (isSignup) {
+        LoadingScreen("회원가입 중...")
+        if (isLoading) {
+            LaunchedEffect(Unit) {
+                delay(1000)
+                isLoading = false
+            }
+        } else {
+            signupStateReset()
+            loginNavController.navigate(LoginRoute.SignupComplete.route) {
+                popUpTo(LoginRoute.Login.route) { inclusive = false }
+            }
+            loginApiViewModel.resetLoginApiUiState()
+        }
+    }
     when (loginApiUiState) {
         is LoginApiUiState.Success -> {
             if (isSignup) {

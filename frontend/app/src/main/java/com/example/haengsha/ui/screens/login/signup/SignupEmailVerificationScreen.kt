@@ -143,7 +143,20 @@ fun SignupEmailVerificationScreen(
                                 emailVerifyTrigger = true
                                 isCodeSending = true
                                 codeVerifyTrigger = false
-                                loginApiViewModel.signupEmailVerify(emailInput)
+                                // TODO signupEmailVerify
+                                // loginApiViewModel.signupEmailVerify(emailInput)
+                                Toasty
+                                    .success(
+                                        loginContext,
+                                        "인증코드가 발송되었습니다.\n아무 숫자 6개를 입력해주세요",
+                                        Toast.LENGTH_SHORT,
+                                        true
+                                    )
+                                    .show()
+                                isCodeSending = false
+                                codeSent++
+                                emailVerifyTrigger = false
+                                loginApiViewModel.resetLoginApiUiState()
                             }
                         },
                         text = "인증번호 " + if (codeSent == 0) "" else {
@@ -234,7 +247,12 @@ fun SignupEmailVerificationScreen(
                         if (!isNextClicked) {
                             isNextClicked = true
                             codeVerifyTrigger = true
-                            loginApiViewModel.loginCodeVerify(emailInput, codeInput)
+                            // TODO loginCodeVerify
+                            // loginApiViewModel.loginCodeVerify(emailInput, codeInput)
+                            signupEmailUpdate(emailInput)
+                            loginNavController.navigate(LoginRoute.SignupPassword.route)
+                            codeVerifyTrigger = false
+                            loginApiViewModel.resetLoginApiUiState()
                         }
                     }
                 })
@@ -326,6 +344,7 @@ fun SignupEmailVerificationScreen(
             is LoginApiUiState.Success -> {
                 signupEmailUpdate(emailInput)
                 loginNavController.navigate(LoginRoute.SignupPassword.route)
+                codeVerifyTrigger = false
                 loginApiViewModel.resetLoginApiUiState()
             }
 

@@ -145,7 +145,20 @@ fun FindPasswordScreen(
                                 isEmailError = false
                                 emailVerifyTrigger = true
                                 codeVerifyTrigger = false
-                                loginApiViewModel.findEmailVerify(emailInput)
+                                // TODO findEmailVerify
+                                // loginApiViewModel.findEmailVerify(emailInput)
+                                Toasty
+                                    .success(
+                                        loginContext,
+                                        "인증코드가 발송되었습니다.\n아무 숫자 6개를 입력해주세요",
+                                        Toast.LENGTH_SHORT,
+                                        true
+                                    )
+                                    .show()
+                                isCodeSending = false
+                                codeSent++
+                                emailVerifyTrigger = false
+                                loginApiViewModel.resetLoginApiUiState()
                             }
                         },
                         text = "인증번호 " + if (codeSent == 0) "" else {
@@ -228,7 +241,12 @@ fun FindPasswordScreen(
                         if (!isNextClicked) {
                             isNextClicked = true
                             codeVerifyTrigger = true
-                            loginApiViewModel.loginCodeVerify(emailInput, codeInput)
+                            // TODO loginCodeVerify
+                            // loginApiViewModel.loginCodeVerify(emailInput, codeInput)
+                            findPasswordEmailUpdate(emailInput)
+                            loginNavController.navigate(LoginRoute.FindPasswordReset.route)
+                            codeVerifyTrigger = false
+                            loginApiViewModel.resetLoginApiUiState()
                         }
                     }
                 })

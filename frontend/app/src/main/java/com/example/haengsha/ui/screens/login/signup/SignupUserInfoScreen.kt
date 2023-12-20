@@ -142,7 +142,17 @@ fun SignupUserInfoScreen(
                                     .error(loginContext, "길이 제한을 지켜주세요", Toast.LENGTH_SHORT, true)
                                     .show()
                             } else {
-                                checkNickname(nickname)
+                                isNicknameError = false
+                                signupViewModel.updateNickname(nickname)
+                                Toasty
+                                    .success(
+                                        loginContext,
+                                        "사용 가능한 닉네임입니다",
+                                        Toast.LENGTH_SHORT,
+                                        true
+                                    )
+                                    .show()
+                                loginApiViewModel.resetLoginApiUiState()
                             }
                         },
                     text = "닉네임 중복 확인",

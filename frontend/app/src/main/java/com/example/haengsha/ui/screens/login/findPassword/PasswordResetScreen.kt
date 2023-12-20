@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ import com.example.haengsha.ui.uiComponents.LoadingScreen
 import com.example.haengsha.ui.uiComponents.passwordCheckTextField
 import com.example.haengsha.ui.uiComponents.passwordSetField
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.delay
 
 @Composable
 fun PasswordResetScreen(
@@ -61,6 +63,9 @@ fun PasswordResetScreen(
     val pattern = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{4,10}$".toRegex()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    // TODO 비밀번호 초기화 하드코딩
+    var isLoading by remember { mutableStateOf(true) }
 
     LazyColumn(
         modifier = Modifier
@@ -149,11 +154,14 @@ fun PasswordResetScreen(
                         ).show()
                     } else if (!isPasswordReset) {
                         isPasswordReset = true
+                        // TODO findChangePassword
+                        /*
                         loginApiViewModel.findChangePassword(
                             email = findPasswordUiState.email,
                             passwordInput,
                             passwordCheckInput
                         )
+                        */
                     }
                 })
             Spacer(modifier = Modifier.height(50.dp))
@@ -171,6 +179,23 @@ fun PasswordResetScreen(
         }
     }
 
+    if (isPasswordReset) {
+        LoadingScreen("비밀번호 변경 중...")
+        if (isLoading) {
+            LaunchedEffect(Unit) {
+                delay(1000)
+                isLoading = false
+            }
+        } else {
+            findPasswordViewModel.resetFindPasswordData()
+            loginNavController.navigate(LoginRoute.FindPasswordComplete.route) {
+                popUpTo(LoginRoute.Login.route) { inclusive = false }
+            }
+            loginApiViewModel.resetLoginApiUiState()
+        }
+    }
+
+    /* TODO 비밀번호 초기화 하드코딩
     when (loginApiUiState) {
         is LoginApiUiState.Success -> {
             if (isPasswordReset) {
@@ -219,7 +244,7 @@ fun PasswordResetScreen(
             /* Other Success State, do nothing */
         }
     }
-
+    */
 }
 
 //@Preview(showBackground = true)

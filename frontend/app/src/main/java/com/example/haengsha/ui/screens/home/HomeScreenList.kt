@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
@@ -58,7 +59,9 @@ import com.example.haengsha.ui.theme.poppins
 import com.example.haengsha.ui.uiComponents.CustomCircularProgressIndicator
 import com.example.haengsha.ui.uiComponents.CustomHorizontalDivider
 import com.example.haengsha.ui.uiComponents.HomeListItem
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -85,6 +88,9 @@ fun HomeScreenList(
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { tabItems.size })
+
+    // TODO 홈화면 하드코딩
+    var isLoading by remember { mutableStateOf(true) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -163,7 +169,8 @@ fun HomeScreenList(
                 onClick = {
                     showRecommendDialog = true
                     if (userUiState.role != "Group" && homeViewModel.initialRecommendationState) {
-                        homeApiViewModel.getRecommendationList(userUiState.token)
+                        // TODO getRecommendationList
+                        // homeApiViewModel.getRecommendationList(userUiState.token)
                         homeViewModel.initialRecommendationState = false
                     }
                 },
@@ -285,6 +292,66 @@ fun HomeScreenList(
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     CustomHorizontalDivider(color = Color.Black.copy(0.3f))
+
+                    if(isLoading) {
+                        LaunchedEffect(Unit) {
+                            delay(1000)
+                            isLoading = false
+                        }
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(deviceHeight - 250.dp)
+                                .background(Color.White),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            items(1) {
+                                CustomCircularProgressIndicator()
+                                Spacer(modifier = Modifier.height(20.dp))
+                                Text(
+                                    text = "추천 행사 불러오는 중...",
+                                    fontFamily = poppins,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = HaengshaBlue
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(deviceHeight - 250.dp)
+                                .background(Color.White),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            recommendationTitle =
+                                "\"${userUiState.nickname}\"님을 위한\n오늘의 맞춤 추천입니다!"
+
+                            items(8) {
+                                Box(modifier = Modifier.clickable {
+                                    showRecommendDialog = false
+                                    homeNavController.navigate(HomeRoute.HomeDetail.route)
+                                }) {
+                                    HomeListItem(
+                                        organizer = "행샤",
+                                        eventTitle = "행샤X행샤 일일호프",
+                                        image = "haengsha",
+                                        startDate = LocalDate.now(),
+                                        endDate = LocalDate.now(),
+                                        likes = 12,
+                                        eventType = "Festival",
+                                        homeContext = homeContext
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+
+                    /* TODO 홈 하드코딩
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -393,6 +460,7 @@ fun HomeScreenList(
                             }
                         }
                     }
+                    */
                 }
                 CustomHorizontalDivider(color = Color.Black.copy(0.3f))
                 Row(

@@ -84,6 +84,7 @@ import com.example.haengsha.ui.uiComponents.CustomVerticalDivider
 import com.example.haengsha.ui.uiComponents.customLargeTextField
 import com.example.haengsha.ui.uiComponents.customSingleLineTextField
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -483,8 +484,18 @@ fun BoardPostScreen(
                             content = eventContent,
                             postContext = postContext
                         )
-                        isPost = true
-                        boardApiViewModel.postEvent(boardPostRequest = boardPostRequest)
+                        // TODO postEvent
+                        // isPost = true
+                        // boardApiViewModel.postEvent(boardPostRequest = boardPostRequest)
+                        postConfirmDialog = false
+                        Toasty.success(
+                            postContext,
+                            "글이 업로드 되었습니다.",
+                            Toasty.LENGTH_SHORT
+                        ).show()
+                        isPost = false
+                        boardApiViewModel.resetBoardPostApiUiState()
+                        boardNavController.popBackStack()
                     } else {
                         Toasty.warning(postContext, errorMessage, Toasty.LENGTH_SHORT).show()
                         postConfirmDialog = false

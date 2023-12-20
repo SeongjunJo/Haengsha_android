@@ -33,7 +33,6 @@ import com.example.haengsha.R
 import com.example.haengsha.model.dataSource.EventCardData
 import com.example.haengsha.model.network.dataModel.EventResponse
 import com.example.haengsha.model.uiState.UserUiState
-import com.example.haengsha.model.uiState.home.HomeApiUiState
 import com.example.haengsha.model.viewModel.board.BoardViewModel
 import com.example.haengsha.model.viewModel.home.HomeApiViewModel
 import com.example.haengsha.model.viewModel.home.HomeViewModel
@@ -70,25 +69,28 @@ fun HomeScreen(
     val startDate = remember { currentMonth.minusMonths(100).atStartOfMonth() }
     val endDate = remember { currentMonth.plusMonths(100).atEndOfMonth() }
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
-
-    if (homeViewModel.initialEnter) {
-        LaunchedEffect(Unit) { homeApiViewModel.getEventByDate(selection) }
-        homeViewModel.initialEnter = false
-    } else {
-        if (homeViewModel.selectionChanged) {
-            LaunchedEffect(selection) { homeApiViewModel.getEventByDate(selection) }
-        }
-    }
-
-    val state = rememberWeekCalendarState(
+    val weekCalendarState = rememberWeekCalendarState(
         startDate = startDate,
         endDate = endDate,
         firstVisibleWeekDate = selection,
         firstDayOfWeek = firstDayOfWeek,
     )
-
     var showDatePicker by remember {
         mutableStateOf(false)
+    }
+
+    // TODO 홈화면 하드코딩
+    var isLoading by remember { mutableStateOf(true) }
+
+    if (homeViewModel.initialEnter) {
+        // TODO getEventByDate
+        // LaunchedEffect(Unit) { homeApiViewModel.getEventByDate(selection) }
+        homeViewModel.initialEnter = false
+    } else {
+        if (homeViewModel.selectionChanged) {
+            // TODO getEventByDate
+            // LaunchedEffect(selection) { homeApiViewModel.getEventByDate(selection) }
+        }
     }
 
     if (showDatePicker) {
@@ -144,11 +146,11 @@ fun HomeScreen(
         }
 
         LaunchedEffect(selection) {
-            state.animateScrollToWeek(selection)
+            weekCalendarState.animateScrollToWeek(selection)
         }
 
         WeekCalendar(
-            state = state,
+            state = weekCalendarState,
             userScrollEnabled = true,
             calendarScrollPaged = true,
             dayContent = { day ->
@@ -158,6 +160,73 @@ fun HomeScreen(
             },
         )
 
+        if(isLoading) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                CustomCircularProgressIndicator()
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "행사 불러오는 중...",
+                    fontFamily = poppins,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = HaengshaBlue
+                )
+            }
+        } else {
+            val academicEventCardData = EventCardData(
+                id = 1,
+                organizer = "행샤",
+                eventTitle = "행사X행샤 일일호프",
+                startDate = LocalDate.now(),
+                endDate = LocalDate.now(),
+                likes = 12,
+                favorites = 3,
+                eventType = "Academic",
+                place = "서울대학교",
+                time = "오후 1시 ~ 오후 6시",
+                image = "haengsha"
+            )
+            val academicCardData : MutableList<EventCardData> = mutableListOf()
+            for(i in 1..10) {
+                academicCardData.add(academicEventCardData)
+            }
+            val academicCardDataList = academicCardData.toList()
+
+            val festivalEventCardData = EventCardData(
+                id = 2,
+                organizer = "행샤",
+                eventTitle = "행사X행샤 일일호프",
+                startDate = LocalDate.now(),
+                endDate = LocalDate.now(),
+                likes = 12,
+                favorites = 3,
+                eventType = "Festival",
+                place = "서울대학교",
+                time = "오후 1시 ~ 오후 6시",
+                image = "haengsha"
+            )
+            val festivalCardData : MutableList<EventCardData> = mutableListOf()
+            for(i in 1..10) {
+                festivalCardData.add(festivalEventCardData)
+            }
+            val festivalCardDataList = festivalCardData.toList()
+
+            homeViewModel.updateEventItems(festivalCardDataList, academicCardDataList)
+            homeViewModel.selectionChanged = false
+            HomeScreenList(
+                homeViewModel = homeViewModel,
+                homeApiViewModel = homeApiViewModel,
+                homeNavController = homeNavController,
+                boardViewModel = boardViewModel,
+                userUiState = userUiState,
+            )
+        }
+
+        /* TODO 홈화면 하드코딩
         when (homeApiUiState) {
             is HomeApiUiState.Success -> {
                 val academicCardDataList: List<EventCardData>? =
@@ -243,7 +312,7 @@ fun HomeScreen(
                 }
             }
         }
-
+        */
     }
 }
 

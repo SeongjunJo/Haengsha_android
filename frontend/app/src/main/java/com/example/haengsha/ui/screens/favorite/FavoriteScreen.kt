@@ -18,6 +18,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,6 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.haengsha.R
+import com.example.haengsha.model.network.dataModel.Author
+import com.example.haengsha.model.network.dataModel.BoardListResponse
+import com.example.haengsha.model.network.dataModel.EventDurationResponse
 import com.example.haengsha.model.route.FavoriteRoute
 import com.example.haengsha.model.uiState.UserUiState
 import com.example.haengsha.model.uiState.board.BoardFavoriteUiState
@@ -40,6 +47,8 @@ import com.example.haengsha.ui.uiComponents.CustomCircularProgressIndicator
 import com.example.haengsha.ui.uiComponents.CustomHorizontalDivider
 import com.example.haengsha.ui.uiComponents.boardListItem
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.delay
+import kotlinx.serialization.SerialName
 
 @Composable
 fun FavoriteScreen(
@@ -87,8 +96,80 @@ fun FavoriteScreen(
             }
         }
     } else {
-        LaunchedEffect(Unit) { boardApiViewModel.getFavoriteBoardList(userUiState.token) }
+        // TODO getFavoriteBoardList
+        // LaunchedEffect(Unit) { boardApiViewModel.getFavoriteBoardList(userUiState.token) }
 
+        var isFavoriteLoading by remember { mutableStateOf(true) }
+
+        if(isFavoriteLoading) {
+            LaunchedEffect(Unit) {
+                delay(1000)
+                isFavoriteLoading = false
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CustomCircularProgressIndicator()
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "즐겨찾기 목록 불러오는 중...",
+                    fontFamily = poppins,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = HaengshaBlue
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .background(PlaceholderGrey)
+                    )
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(5) {
+                            Box(modifier = Modifier.clickable {
+                                favoriteNavController.navigate(FavoriteRoute.FavoriteDetail.route)
+                            }) {
+                                boardListItem(
+                                    isFavorite = true,
+                                    event = BoardListResponse(
+                                        id = 1,
+                                        title = "행샤X행샤 일일호프",
+                                        isFestival = true,
+                                        author = Author("행샤"),
+                                        eventDurations = listOf(EventDurationResponse("2023.01.01"), EventDurationResponse("2023.12.31")),
+                                        place = "서울대학교",
+                                        time = "오후 1시 ~ 오후 5시",
+                                        content = "행샤입니다",
+                                        image = "haengsha",
+                                        likeCount = 12,
+                                        favoriteCount = 3
+                                    )
+                                )
+                            }
+                            CustomHorizontalDivider(color = PlaceholderGrey)
+                        }
+                    }
+                }
+            }
+        }
+
+        /* TODO hardcoding
         when (boardFavoriteUiState) {
             is BoardFavoriteUiState.HttpError -> {
                 Box(
@@ -196,5 +277,6 @@ fun FavoriteScreen(
                 }
             }
         }
+        */
     }
 }

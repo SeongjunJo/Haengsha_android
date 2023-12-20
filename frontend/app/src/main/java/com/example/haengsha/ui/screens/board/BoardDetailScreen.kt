@@ -1,5 +1,6 @@
 package com.example.haengsha.ui.screens.board
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,40 +20,39 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import coil.size.Size
 import com.example.haengsha.R
 import com.example.haengsha.model.uiState.UserUiState
-import com.example.haengsha.model.uiState.board.BoardDetailUiState
-import com.example.haengsha.model.uiState.board.PatchLikeFavoriteUiState
 import com.example.haengsha.model.viewModel.board.BoardApiViewModel
 import com.example.haengsha.model.viewModel.board.BoardViewModel
+import com.example.haengsha.ui.theme.CommentBlue
 import com.example.haengsha.ui.theme.FavoriteYellow
 import com.example.haengsha.ui.theme.HaengshaBlue
+import com.example.haengsha.ui.theme.HaengshaGrey
 import com.example.haengsha.ui.theme.LikePink
 import com.example.haengsha.ui.theme.PlaceholderGrey
 import com.example.haengsha.ui.theme.poppins
+import com.example.haengsha.ui.uiComponents.CommentButton
+import com.example.haengsha.ui.uiComponents.CommentListItem
 import com.example.haengsha.ui.uiComponents.CustomCircularProgressIndicator
 import com.example.haengsha.ui.uiComponents.CustomHorizontalDivider
 import com.example.haengsha.ui.uiComponents.CustomVerticalDivider
+import com.example.haengsha.ui.uiComponents.commentTextField
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.delay
 
 @Composable
 fun BoardDetailScreen(
@@ -62,13 +62,360 @@ fun BoardDetailScreen(
     userUiState: UserUiState,
     eventId: Int
 ) {
+    var isDetailLoading by remember { mutableStateOf(true) }
+    var isImageLoading by remember { mutableStateOf(true) }
+    val boardContext = LocalContext.current
+
+    LaunchedEffect(Unit){
+        delay(1000)
+        isDetailLoading = false
+    }
+
+    if(isDetailLoading){
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            CustomCircularProgressIndicator()
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "행사 정보 가져오는 중...",
+                fontFamily = poppins,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = HaengshaBlue
+            )
+        }
+    } else {
+        val likeCount = 12
+        val favoriteCount = 3
+        val isLiked = true
+        val isFavorite = false
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            LazyColumn {
+                items(1) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 30.dp, end = 30.dp)
+                    ) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            text = "행샤X행샤 일일호프",
+                            fontFamily = poppins,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(top = 2.dp),
+                                text = "주최",
+                                fontFamily = poppins,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            CustomVerticalDivider(height = 16, color = PlaceholderGrey)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                modifier = Modifier.padding(top = 1.dp),
+                                text = "행샤",
+                                fontFamily = poppins,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(top = 2.dp),
+                                text = "일자",
+                                fontFamily = poppins,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            CustomVerticalDivider(height = 16, color = PlaceholderGrey)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "2023.01.01 ~ 2023.12.31",
+                                modifier = Modifier.padding(top = 1.dp),
+                                fontFamily = poppins,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(top = 2.dp),
+                                text = "장소",
+                                fontFamily = poppins,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            CustomVerticalDivider(height = 16, color = PlaceholderGrey)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                modifier = Modifier.padding(top = 1.dp),
+                                text = "서울대학교",
+                                fontFamily = poppins,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Normal,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(top = 2.dp),
+                                text = "시간",
+                                fontFamily = poppins,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            CustomVerticalDivider(height = 16, color = PlaceholderGrey)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                modifier = Modifier.padding(top = 1.dp),
+                                text = "오후 1시 ~ 오후 5시",
+                                fontFamily = poppins,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Normal,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(15.dp))
+                        CustomHorizontalDivider(color = PlaceholderGrey)
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Box(contentAlignment = Alignment.Center) {
+                            Image(
+                                painter = painterResource(id = R.drawable.nudge_image),
+                                contentDescription = "festival poster",
+                            )
+                            if (isImageLoading) {
+                                LaunchedEffect(Unit) {
+                                    delay(1000)
+                                    isImageLoading = false
+                                }
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    CustomCircularProgressIndicator()
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Text(
+                                        text = "이미지 불러오는 중...",
+                                        fontFamily = poppins,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = HaengshaBlue
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            text = "행샤입니다",
+                            fontFamily = poppins,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+                        Spacer(modifier = Modifier.height(15.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                modifier = Modifier.clickable {
+                                    if (userUiState.role == "User") {
+                                        // TODO patchLike
+                                        // boardApiViewModel.patchLike(userUiState.token, eventId)
+                                    } else {
+                                        Toasty.warning(
+                                            boardContext,
+                                            "단체 계정은 좋아요를 할 수 없어요",
+                                            Toasty.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(20.dp),
+                                    imageVector = if (isLiked) {
+                                        ImageVector.vectorResource(id = R.drawable.like_fill_icon)
+                                    } else {
+                                        ImageVector.vectorResource(id = R.drawable.like_empty_icon)
+                                    },
+                                    contentDescription = "like icon",
+                                    tint = LikePink
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = likeCount.toString(),
+                                    modifier = Modifier.padding(top = 4.dp),
+                                    fontFamily = poppins,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = LikePink
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(20.dp),
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.comment_count_icon),
+                                    contentDescription = "comment count icon",
+                                    tint = CommentBlue
+                                )
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text(
+                                    text = "14",
+                                    fontFamily = poppins,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = CommentBlue
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Row(
+                                modifier = Modifier.clickable {
+                                    if (userUiState.role == "User") {
+                                        // TODO patchFavorite
+                                        // boardApiViewModel.patchFavorite(userUiState.token, eventId)
+                                    } else {
+                                        Toasty.warning(
+                                            boardContext,
+                                            "단체 계정은 즐겨찾기를 할 수 없어요",
+                                            Toasty.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(22.dp),
+                                    imageVector = if (isFavorite) {
+                                        ImageVector.vectorResource(id = R.drawable.favorite_fill_icon)
+                                    } else {
+                                        ImageVector.vectorResource(id = R.drawable.favorite_empty_icon)
+                                    },
+                                    contentDescription = "favorite count icon",
+                                    tint = FavoriteYellow
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = favoriteCount.toString(),
+                                    modifier = Modifier.padding(top = 4.dp),
+                                    fontFamily = poppins,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = FavoriteYellow
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(15.dp))
+                        CustomHorizontalDivider(color = PlaceholderGrey)
+                        Spacer(modifier = Modifier.height(15.dp))
+                        Text(
+                            text = "국제 자원봉사동아리 GIV\n",
+                            fontFamily = poppins,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = stringResource(id = R.string.long_text),
+                            fontFamily = poppins,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+                        Spacer(modifier = Modifier.height(15.dp))
+                    }
+                }
+                items(1) {
+                    CustomHorizontalDivider(color = HaengshaGrey)
+                    CustomHorizontalDivider(color = HaengshaGrey)
+                    Spacer(modifier = Modifier.height(15.dp))
+                    Text(
+                        modifier = Modifier.padding(start = 30.dp),
+                        text = "댓글",
+                        fontFamily = poppins,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
+                    CustomHorizontalDivider(color = HaengshaGrey)
+                }
+                items(20) {
+                    CommentListItem(
+                        userNickName = "천식만 먹는 사람",
+                        commentDate = "2023.10.29",
+                        commentContent = "여기 작년에 갔었는데 라인업 완전 망했음 ㅋㅋㅋ"
+                    )
+                    CustomHorizontalDivider(color = PlaceholderGrey)
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+            ) {
+                CustomHorizontalDivider(color = HaengshaGrey)
+                CustomHorizontalDivider(color = HaengshaGrey)
+                Spacer(modifier = Modifier.height(15.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    commentTextField{}
+                    CommentButton(isCommented = true) {}
+                }
+            }
+        }
+    }
+
+    /* TODO hardcoding
     val boardContext = LocalContext.current
     val boardDetailUiState = boardApiViewModel.boardDetailUiState
 
     LaunchedEffect(Unit) {
         boardApiViewModel.resetPatchLikeFavoriteUiState()
         boardViewModel.resetError()
-        boardApiViewModel.getBoardDetail(userUiState.token, eventId)
+        // TODO getBoardDetail
+        // boardApiViewModel.getBoardDetail(userUiState.token, eventId)
     }
 
     when (boardDetailUiState) {
@@ -360,7 +707,8 @@ fun BoardDetailScreen(
                                 Row(
                                     modifier = Modifier.clickable {
                                         if (userUiState.role == "User") {
-                                            boardApiViewModel.patchLike(userUiState.token, eventId)
+                                        // TODO patchLike
+                                        // boardApiViewModel.patchLike(userUiState.token, eventId)
                                         } else {
                                             Toasty.warning(
                                                 boardContext,
@@ -391,7 +739,6 @@ fun BoardDetailScreen(
                                         color = LikePink
                                     )
                                 }
-                                /* TODO 댓글 UI
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -411,15 +758,12 @@ fun BoardDetailScreen(
                                         color = CommentBlue
                                     )
                                 }
-                                */
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Row(
                                     modifier = Modifier.clickable {
                                         if (userUiState.role == "User") {
-                                            boardApiViewModel.patchFavorite(
-                                                userUiState.token,
-                                                eventId
-                                            )
+                                            // TODO patchFavorite
+                                            // boardApiViewModel.patchFavorite(userUiState.token, eventId)
                                         } else {
                                             Toasty.warning(
                                                 boardContext,
@@ -452,13 +796,8 @@ fun BoardDetailScreen(
                                 }
                             }
                             Spacer(modifier = Modifier.height(20.dp))
-                            /* TODO 댓글 UI
                             Spacer(modifier = Modifier.height(15.dp))
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(),
-                                thickness = 1.dp,
-                                color = PlaceholderGrey
-                            )
+                            CustomHorizontalDivider(color = PlaceholderGrey)
                             Spacer(modifier = Modifier.height(15.dp))
                             Text(
                                 text = "국제 자원봉사동아리 GIV\n",
@@ -473,16 +812,11 @@ fun BoardDetailScreen(
                                 fontWeight = FontWeight.Normal
                             )
                             Spacer(modifier = Modifier.height(15.dp))
-                            */
                         }
                     }
-                    /*
                     items(1) {
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 2.dp,
-                            color = HaengshaGrey
-                        )
+                        CustomHorizontalDivider(color = HaengshaGrey)
+                        CustomHorizontalDivider(color = HaengshaGrey)
                         Spacer(modifier = Modifier.height(15.dp))
                         Text(
                             modifier = Modifier.padding(start = 30.dp),
@@ -492,37 +826,24 @@ fun BoardDetailScreen(
                             fontWeight = FontWeight.SemiBold
                         )
                         Spacer(modifier = Modifier.height(15.dp))
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 1.dp,
-                            color = HaengshaGrey
-                        )
+                        CustomHorizontalDivider(color = HaengshaGrey)
                     }
                     items(20) {
-                        CommentList(
+                        CommentListItem(
                             userNickName = "천식만 먹는 사람",
                             commentDate = "2023.10.29",
                             commentContent = "여기 작년에 갔었는데 라인업 완전 망했음 ㅋㅋㅋ"
                         )
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 1.dp,
-                            color = PlaceholderGrey
-                        )
+                        CustomHorizontalDivider(color = PlaceholderGrey)
                     }
-                    */
                 }
-                /*
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp)
                 ) {
-                    HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        thickness = 2.dp,
-                        color = HaengshaGrey
-                    )
+                    CustomHorizontalDivider(color = HaengshaGrey)
+                    CustomHorizontalDivider(color = HaengshaGrey)
                     Spacer(modifier = Modifier.height(15.dp))
                     Row(
                         modifier = Modifier
@@ -530,12 +851,12 @@ fun BoardDetailScreen(
                             .padding(horizontal = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        commentTextField()
-                        CommentButton(isCommented = true) { /*TODO onClick 넣기*/ }
+                        commentTextField{}
+                        CommentButton(isCommented = true) {}
                     }
                 }
-                */
             }
         }
     }
+    */
 }

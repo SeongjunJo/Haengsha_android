@@ -126,7 +126,10 @@ fun Login(
         }
         composable(LoginRoute.SignupUserInfo.route) {
             SignupUserInfoScreen(
-                checkNickname = { loginApiViewModel.checkNickname(it) },
+                checkNickname = {
+                    // TODO checkNickname
+                    // loginApiViewModel.checkNickname(it)
+                    },
                 loginApiViewModel = loginApiViewModel,
                 loginApiUiState = loginApiUiState,
                 signupViewModel = signupViewModel,
